@@ -26,8 +26,8 @@ public class UserController {
         log.info("GET 회원 관리 페이지");
         List<UserResponseDTO> userResponseDTOList = userService.getAllUser();
 
-        if(userResponseDTOList.size() == 0)
-            ;//todo
+//        if(userResponseDTOList.size() == 0)
+//            ;//todo
 
         model.addAttribute("userResponseDTOList", userResponseDTOList);
 
