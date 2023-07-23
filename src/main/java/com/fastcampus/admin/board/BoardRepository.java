@@ -2,6 +2,7 @@ package com.fastcampus.admin.board;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 @Mapper
@@ -11,13 +12,11 @@ public interface BoardRepository {
 
     List<Board> findAll();
 
-    int deleteById(@Param("id") long id);
+    void deleteById(Long id);
 
-    int updateById(@Param("id") Long id, @Param("hide") boolean hide, @Param("state") State state);
-
-    int updateStateByBoardId(@Param("boardId") Long boardId, @Param("state") State state);
-
-    int insert(Long id);
+    void updateHideById(@Param("id")Long id, @Param("hide")boolean hide);
 
     Long findByUserId(Long userId);
+
+    void deleteByReportedId(@Param("boardId")Long boardId);
 }

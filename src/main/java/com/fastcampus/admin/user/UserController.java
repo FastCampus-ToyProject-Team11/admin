@@ -1,7 +1,7 @@
 package com.fastcampus.admin.user;
 
-import com.fastcampus.admin.user.dto.UserRequestDTO;
-import com.fastcampus.admin.user.dto.UserResponseDTO;
+import com.fastcampus.admin.user.dto.UserRequest;
+import com.fastcampus.admin.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -24,23 +24,19 @@ public class UserController {
     @GetMapping()
     public String user(Model model) {
         log.info("GET 회원 관리 페이지");
-        List<UserResponseDTO> userResponseDTOList = userService.getAllUser();
+        List<UserResponse.GetUserDTO> getUserDTOList = userService.getAllUser();
 
-//        if(userResponseDTOList.size() == 0)
-//            ;//todo
-
-        model.addAttribute("userResponseDTOList", userResponseDTOList);
+        model.addAttribute("getUserDTOList", getUserDTOList);
 
         return "admin/user";
     }
 
     @PostMapping()
-    public String user(@RequestBody UserRequestDTO userRequestDTO){
+    public String user(@RequestBody UserRequest.SetRoleDTO setRoleDTO){
         log.info("POST 회원 관리 페이지");
 
-        userService.setRole(userRequestDTO); //dto를 파라미터로 넘겨줘야함
+        userService.setRole(setRoleDTO); //dto를 파라미터로 넘겨줘야함
 
         return "redirect:/admin";
     }
-
 }

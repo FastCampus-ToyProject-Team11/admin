@@ -5,23 +5,18 @@
 
 <mapper namespace="com.fastcampus.admin.user.UserRepository">
     <select id="findAll" resultType="com.fastcampus.admin.user.User">
-        select *
-        from user_tb
+        select *from user_tb
     </select>
     <select id="findById" resultType="com.fastcampus.admin.user.User">
-        select *
-        from user_tb
-        where id = #{id}
+        select *from user_tb where id = #{id}
     </select>
     <update id="updateById">
-        update user_tb
-        set role = #{role}
-        where id = #{id}
+        update user_tb set role = #{role} where id = #{id}
+    </update>
+    <update id="updateReasonById">
+        update user_tb set black = #{black}, reason = #{reason} where id = #{id}
     </update>
     <update id="updateByReportId">
-        update user_tb
-        set black = #{black},
-            reason=#{reason}
-        where id = #{id}
+        update user_tbset black = #{black}, reason = #{reason} where id = #{id}
     </update>
 </mapper>

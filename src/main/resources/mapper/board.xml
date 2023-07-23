@@ -16,13 +16,10 @@
     <delete id="deleteById">
         delete from board_tb where id = #{id}
     </delete>
-    <update id="updateById" >
-        update board_tb set hide = #{hide}, state = #{state} where id = #{id}
+    <update id="updateHideById" >
+        update board_tb set hide = #{hide} where id = #{id}
     </update>
-    <update id="updateStateByBoardId" >
-        update board_tb set state = #{state} where id = #{boardId}
-    </update>
-    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
-        insert into board_tb (title, content, userId, createdAt) values (#{title}, #{content}, #{userId}, now())
-    </insert>
+    <delete id="deleteByReportedId">
+        delete from board_tb where id = #{boardId}
+    </delete>
 </mapper>
