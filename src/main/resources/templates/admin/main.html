@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>관리자 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4b49ac;
+            margin-bottom: 20px;
+        }
+
+        /* 버튼 스타일 추가 */
+        button {
+            background-color: #4b49ac;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* 버튼 호버 효과 */
+        button:hover {
+            background-color: #0c007d;
+        }
+
+        /* div 요소 스타일 추가 */
+        div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* a 요소 스타일 추가 */
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+<h1>관리자 페이지</h1>
+<div>
+    <a href="/admin/user">
+        <button>회원 관리</button>
+    </a>
+
+    <a href="/admin/board">
+        <button>게시글 관리</button>
+    </a>
+
+    <a href="/admin/report">
+        <button>신고게시글 관리</button>
+        </a>
+</div>
+
+
+</a>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>신고 게시글 관리 페이지</h1>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    h1 {
+        text-align: center;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background-color: lightgray;
+    }
+    select {
+        width: 100%;
+    }
+    button {
+        margin: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        float: right;
+    }
+</style>
+<table id="reportTable">
+    <thead>
+    <tr>
+        <th>제목</th>
+        <th>내용</th>
+        <th>작성자</th>
+        <th>시간</th>
+        <td>차단</td>
+        <th>사유<th>
+    </tr>
+    </thead>
+    <tbody>
+    <div role="row" th:each="getReportDTO : ${getReportDTOList}">
+        <tr>
+            <td th:name = "reportId" th:text="${getReportDTO.id}" style="display: none;"></td>
+            <td th:text="${getReportDTO.title}"></td>
+            <td th:text="${getReportDTO.content}"></td>
+
+            <td th:text="${getReportDTO.username}"></td>
+            <td th:text="${getReportDTO.createdAt}"></td>
+            <td>
+                <input name="black" th:type="checkbox">
+            </td>
+            <td>
+                <select name="reason">
+                    <option th:id="select" th:each="reason : ${T(com.fastcampus.admin.report.Reason).values()}"
+                            th:text="${reason}" th:value="${reason}"
+                            th:selected="${getReportDTO.reason == reason}">
+                    </option>
+                </select>
+            </td>
+            <td>
+                <button class="btn-save-state">저장하기</button>
+            </td>
+        </tr>
+    </div>
+    </tbody>
+    <form id="reportForm" th:action="@{/admin}">
+        <button type="submit" value="cancel">메인화면</button>
+    </form>
+</table>
+<script>
+    let index = {
+        init: function () {
+            $(".btn-save-state").on("click", function(event) {
+                event.preventDefault(); // 버튼 클릭 시 기본 동작(페이지 새로고침)을 막습니다.
+
+                let parentDiv = $(this).closest('tr');
+                let id = parentDiv.find('td:eq(0)').text();
+                let reason = parentDiv.find('select[name="reason"]').val();
+                //let black = parentDiv.find('select[name="black"]').val();
+                let black = parentDiv.find('input[name="black"]').prop('checked');
+                index.saveRole(id, reason, black);
+            })
+        },
+
+        saveRole: function (id, reason, black) {
+            // 서버에 전송할 JSON 데이터 생성
+            const data = {
+                id: id,
+                reason: reason,
+                black: black
+            };
+            // AJAX 요청 설정
+            $.ajax({
+                type: "POST",
+                url: "/admin/report", // 실제 요청을 처리할 서버 URL
+                data: JSON.stringify(data), // JSON 데이터를 문자열로 변환하여 전송
+                contentType: "application/json", // JSON 형식으로 데이터를 전송함을 지정
+                success: function (response) {
+                    alert("상태 저장 성공!");
+                    // 성공적으로 처리되었을 때 추가적인 로직을 수행할 수 있음
+                    // const form = $('<form method="post" action="/redirect:/admin/board"></form>');
+                    // form.append('<input type="hidden" name="boardAction" value="save" />');
+                    // form.appendTo('body').submit();
+                },
+                error: function (xhr) {
+                    alert("상태 저장 실패: " + xhr.responseText);
+                    // 에러 처리 로직
+
+
+                }
+            });
+        }
+    }
+
+    index.init()
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: lightgray;
+        }
+        select {
+            width: 100%;
+        }
+        button {
+            margin: 10px;
+            padding: 10px;
+            background-color: lightgray;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* 모달 내부 스타일 */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+
+<h1>회원 관리 페이지</h1>
+<table id="userTable">
+    <thead>
+    <tr>
+        <th>이름</th>
+        <th>닉네임</th>
+        <th>이메일</th>
+        <th><a href="#" onclick="sortTable(4)">댓글 수</a></th>
+        <th><a href="#" onclick="sortTable(5)">게시글 수</a></th>
+        <th>역할</th>
+        <th>저장</th>
+    </tr>
+    </thead>
+    <tbody>
+    <div role="row" th:each="getUserDTO : ${getUserDTOList}">
+        <tr>
+            <td th:name = "userId" th:text="${getUserDTO.id}" style="display: none;"></td>
+            <td th:text="${getUserDTO.username}"></td>
+            <td th:text="${getUserDTO.nickName}"></td>
+            <td>
+                <a href="#" onclick="openModal('${userResponseDTO.email}')">
+                    <span th:text="${getUserDTO.email}"></span>
+                </a>
+            </td>
+            <td th:text="${getUserDTO.commentCount}"></td>
+            <td th:text="${getUserDTO.boardCount}"></td>
+            <td>
+                <select name="role">
+                    <option th:id="select" th:each="role : ${T(com.fastcampus.admin.user.Role).values()}"
+                            th:text="${role}" th:value="${role}"
+                            th:selected="${getUserDTO.role == role}">
+                    </option>
+                </select>
+            </td>
+            <td>
+                <button class="btn-save-state">저장하기</button>
+            </td>
+        </tr>
+    </div>
+    </tbody>
+    <form id="userForm" th:action="@{/admin}">
+        <button type="submit" value="cancel">메인화면</button>
+    </form>
+</table>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+
+        <form id="emailForm" th:action="@{/admin/user}" th:method="post">
+
+            <input type="hidden" name="email" id="emailInput">
+
+            <input type="text" id="textInput" placeholder="텍스트를 입력하세요">
+            <button type="submit">전송</button>
+            <button type="button" onclick="closeModal()">취소</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let ascending = true; // 정렬 방향을 나타내는 변수를 추가합니다.
+
+    function sortTable(column) {
+        var table = document.getElementById('userTable');
+        var rows = Array.from(table.rows).slice(1); // 첫 번째 행(테이블 헤더)을 제외하고 정렬합니다.
+
+        rows.sort((rowA, rowB) => {
+            var cellA = rowA.cells[column].textContent;
+            var cellB = rowB.cells[column].textContent;
+
+            if (column === 4 || column === 5) {
+                // 댓글 수와 게시글 수는 숫자로 변환하여 정렬합니다.
+                return parseInt(cellA) - parseInt(cellB);
+            } else {
+                // 나머지 열은 문자열로 비교하여 정렬합니다.
+                return cellA.localeCompare(cellB);
+            }
+        });
+
+        // 정렬 순서를 바꿉니다.
+        if (!ascending) {
+            rows.reverse();
+        }
+
+        // 내림차순 정렬 시 순서를 뒤집습니다.
+        ascending = !ascending;
+
+        // 정렬된 행들을 테이블에 삽입합니다.
+        for (var i = 0; i < rows.length; i++) {
+            table.tBodies[0].appendChild(rows[i]);
+        }
+    }
+
+    function updateUserForm(row) {
+        const username = row.cells[0].textContent;
+        const nickName = row.cells[1].textContent;
+        const email = row.cells[2].querySelector('span').textContent;
+        const commentCount = row.cells[3].textContent;
+        const boardCount = row.cells[4].textContent;
+        const role = row.cells[5].querySelector('select').value;
+
+        const form = document.getElementById('userForm');
+        form.innerHTML = ''; // 기존의 내용을 초기화
+
+        // hidden input을 추가하여 수정된 행의 데이터를 전송
+        const usernameInput = document.createElement('input');
+        usernameInput.setAttribute('type', 'hidden');
+        usernameInput.setAttribute('name', 'username');
+        usernameInput.setAttribute('value', username);
+        form.appendChild(usernameInput);
+
+        const nickNameInput = document.createElement('input');
+        nickNameInput.setAttribute('type', 'hidden');
+        nickNameInput.setAttribute('name', 'nickName');
+        nickNameInput.setAttribute('value', nickName);
+        form.appendChild(nickNameInput);
+
+        const emailInput = document.createElement('input');
+        emailInput.setAttribute('type', 'hidden');
+        emailInput.setAttribute('name', 'email');
+        emailInput.setAttribute('value', email);
+        form.appendChild(emailInput);
+
+        const commentCountInput = document.createElement('input');
+        commentCountInput.setAttribute('type', 'hidden');
+        commentCountInput.setAttribute('name', 'commentCount');
+        commentCountInput.setAttribute('value', commentCount);
+        form.appendChild(commentCountInput);
+
+        const boardCountInput = document.createElement('input');
+        boardCountInput.setAttribute('type', 'hidden');
+        boardCountInput.setAttribute('name', 'boardCount');
+        boardCountInput.setAttribute('value', boardCount);
+        form.appendChild(boardCountInput);
+
+        const roleInput = document.createElement('input');
+        roleInput.setAttribute('type', 'hidden');
+        roleInput.setAttribute('name', 'role');
+        roleInput.setAttribute('value', role);
+        form.appendChild(roleInput);
+    }
+
+    // 모달 창 열기
+    function openModal(email) {
+        document.getElementById('modal').style.display = 'block';
+
+        // 모달 내용을 채우기 위해 이메일 값을 폼에 추가
+        const emailInput = document.getElementById('emailInput');
+        emailInput.value = email;
+    }
+
+    // 모달 창 닫기
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    // 모달 창 열기
+    // function openModal(email) {
+    //     document.getElementById('modal').style.display = 'block';
+    //
+    //     // 모달 내용을 채우기 위해 이메일 값을 폼에 추가
+    //     const emailInput = document.createElement('input');
+    //     emailInput.setAttribute('type', 'hidden');
+    //     emailInput.setAttribute('name', 'email');
+    //     emailInput.setAttribute('value', email);
+    //     document.getElementById('emailForm').appendChild(emailInput);
+    // }
+
+
+    let index = {
+        init: function () {
+            $(".btn-save-state").on("click", function(event) {
+                event.preventDefault(); // 버튼 클릭 시 기본 동작(페이지 새로고침)을 막습니다.
+
+                let parentDiv = $(this).closest('tr');
+                let id = parentDiv.find('td:eq(0)').text();
+                let role = parentDiv.find('select[name="role"]').val();
+                // ...
+                index.saveRole(id, role);
+            })
+        },
+
+        saveRole: function (id, role) {
+            // 서버에 전송할 JSON 데이터 생성
+            const data = {
+                id: id,
+                role: role
+            };
+            // AJAX 요청 설정
+            $.ajax({
+                type: "POST",
+                url: "/admin/user", // 실제 요청을 처리할 서버 URL
+                data: JSON.stringify(data), // JSON 데이터를 문자열로 변환하여 전송
+                contentType: "application/json", // JSON 형식으로 데이터를 전송함을 지정
+                success: function (response) {
+                    alert("상태 저장 성공!");
+                    // 성공적으로 처리되었을 때 추가적인 로직을 수행할 수 있음
+                    // const form = $('<form method="post" action="/redirect:/admin/board"></form>');
+                    // form.append('<input type="hidden" name="boardAction" value="save" />');
+                    // form.appendTo('body').submit();
+                },
+                error: function (xhr) {
+                    alert("상태 저장 실패: " + xhr.responseText);
+                    // 에러 처리 로직
+
+
+                }
+            });
+        }
+    }
+    index.init()
+</script>
+</body>
+</html>
